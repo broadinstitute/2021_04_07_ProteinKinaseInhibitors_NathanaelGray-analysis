@@ -1,4 +1,4 @@
-broad_sample	Barcode	Supplier	Supplier Catalog	moa	pert_type	control_type
+broad_sample	Barcode	Supplier	Supplier_Catalog	moa	pert_type	control_type
 BRD-U00086672-001-01-9	TV143446	Dana Farber Cancer Institute	FMF-03-146-1	DCLK1 inhibitor	trt	
 BRD-U00086673-001-01-9	TV143447	Dana Farber Cancer Institute	FMF-04-112-1	DCLK1 negative control	trt	
 BRD-U00086674-001-01-9	TV143448	Dana Farber Cancer Institute	FMF-04-159-2	TAIRE kinase inhibitor covalent	trt	
@@ -10,8 +10,8 @@ BRD-U00086679-001-01-9	TV143454	Dana Farber Cancer Institute	Pin1-3	Pin1 inhibit
 BRD-U00086680-001-01-9	TV143456	Dana Farber Cancer Institute	JWG-071	ERK5 inhibitor	trt	
 BRD-U00086681-001-01-9	TV143457	Dana Farber Cancer Institute	AX15836	ERK5 inhibitor	trt	
 BRD-U00086682-001-01-9	TV143458	Dana Farber Cancer Institute	JWG-119	ERK5 inhibitor negative control	trt	
-BRD-K15179513-001-03-4	NVP-ADW742	control	poscon
-BRD-K15819326-001-01-6	AC-710	control	poscon
-BRD-K95785537-001-26-9	PP-2	control	poscon
-BRD-K40109029-001-06-9	SB-505124	control	poscon
+BRD-K15179513-001-03-4			NVP-ADW742	insulin growth factor receptor inhibitor	control	poscon
+BRD-K15819326-001-01-6			AC-710	PDGFR tyrosine kinase receptor inhibitor	control	poscon
+BRD-K95785537-001-26-9			PP-2	SRC inhibitor	control	poscon
+BRD-K40109029-001-06-9			SB-505124	ALK tyrosine kinase receptor inhibitor	control	poscon
 			DMSO		control	negcon
