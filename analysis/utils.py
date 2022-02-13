@@ -98,7 +98,7 @@ def consensus(profiles_df, group_by_feature):
     profiles_df = profiles_df[feature_cols].groupby([group_by_feature]).median().reset_index()
 
     profiles_df = (
-        metadata_df.merge(profiles_df, on='Metadata_broad_sample')
+        metadata_df.merge(profiles_df, on=group_by_feature)
             .drop(columns=['Metadata_Well'])
     )
 
