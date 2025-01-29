@@ -1,0 +1,92 @@
+---
+title: "Features_mapping_script"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# Path of combined data
+setwd("/Users/habbasi/Desktop/Parkinson_disease/")
+
+files <- list.files(path = ".", pattern = ".csv")
+
+for (i in 1:length(files)) {
+  data <- data.frame(readr::read_csv(files[i]), stringsAsFactors = F)
+  data <- data[-c(1,3,4),]
+colnames(data) <- data[1, ]
+data <- data[-1, ]
+
+
+data$compartment[grepl("Nuclei", data$id, ignore.case = TRUE)] <-  "Nuclei"
+data$compartment[grepl("Cells", data$id, ignore.case = TRUE)] <-  "Cells"
+data$compartment[grepl("Cytoplasm", data$id, ignore.case = TRUE)] <-  "Cytoplasm"
+
+data$feature_type[grepl("Texture", data$id, ignore.case = TRUE) | grepl("Granularity", data$id, ignore.case = TRUE) | grepl("_Texture_Correlation", data$id, ignore.case = TRUE)] <-  "Texture"
+data$feature_type[grepl("RadialDistribution", data$id, ignore.case = TRUE)] <-  "RadialDistribution"
+data$feature_type[grepl("AreaShape", data$id, ignore.case = TRUE)] <-  "AreaShape"
+data$feature_type[grepl("Intensity", data$id, ignore.case = TRUE) | grepl("Correlation", data$id, ignore.case = TRUE) ] <-  "Intensity"
+data$feature_type[grepl("Neighbors", data$id, ignore.case = TRUE)] <-  "Neighbors_Distance"
+
+
+data$channel[grepl("_DNA", data$id, ignore.case = FALSE)] <-  "DNA"
+data$channel[grepl("_DNA_OrigAGP", data$id, ignore.case = FALSE)] <-  "DNA, AGP"
+data$channel[grepl("_DNA_OrigLyso", data$id, ignore.case = FALSE)] <-  "DNA, Lyso"
+data$channel[grepl("_DNA_OrigER", data$id, ignore.case = FALSE)] <-  "DNA, ER"
+data$channel[grepl("_DNA_OrigRNA", data$id, ignore.case = FALSE)] <-  "DNA, RNA"
+data$channel[grepl("_DNA_OrigMito", data$id, ignore.case = FALSE)] <-  "DNA, Mito"
+
+data$channel[grepl("_Lyso", data$id, ignore.case = FALSE)] <-  "Lyso"
+data$channel[grepl("_Lyso_OrigDNA", data$id, ignore.case = FALSE)] <-  "Lyso, DNA"
+data$channel[grepl("_Lyso_OrigAGP", data$id, ignore.case = FALSE)] <-  "Lyso, AGP"
+data$channel[grepl("_Lyso_OrigER", data$id, ignore.case = FALSE)] <-  "Lyso, ER"
+data$channel[grepl("_Lyso_OrigRNA", data$id, ignore.case = FALSE)] <-  "Lyso, RNA"
+data$channel[grepl("_Lyso_OrigMito", data$id, ignore.case = FALSE)] <-  "Lyso, Mito"
+
+data$channel[grepl("_AGP", data$id, ignore.case = FALSE)] <-  "AGP"
+data$channel[grepl("_AGP_OrigDNA", data$id, ignore.case = FALSE)] <-  "AGP, DNA"
+data$channel[grepl("_AGP_OrigLyso", data$id, ignore.case = FALSE)] <-  "AGP, Lyso"
+data$channel[grepl("_AGP_OrigER", data$id, ignore.case = FALSE)] <-  "AGP, ER"
+data$channel[grepl("_AGP_OrigRNA", data$id, ignore.case = FALSE)] <-  "AGP, RNA"
+data$channel[grepl("_AGP_OrigMito", data$id, ignore.case = FALSE)] <-  "AGP, Mito"
+
+data$channel[grepl("_ER", data$id, ignore.case = FALSE)] <-  "ER"
+data$channel[grepl("_ER_OrigDNA", data$id, ignore.case = FALSE)] <-  "ER, DNA"
+data$channel[grepl("_ER_OrigAGP", data$id, ignore.case = FALSE)] <-  "ER, AGP"
+data$channel[grepl("_ER_OrigLyso", data$id, ignore.case = FALSE)] <-  "ER, Lyso"
+data$channel[grepl("_ER_OrigRNA", data$id, ignore.case = FALSE)] <-  "ER, RNA"
+data$channel[grepl("_ER_OrigMito", data$id, ignore.case = FALSE)] <-  "ER, Mito"
+
+
+data$channel[grepl("_RNA", data$id, ignore.case = FALSE)] <-  "RNA"
+data$channel[grepl("_RNA_OrigDNA", data$id, ignore.case = FALSE)] <-  "RNA, DNA"
+data$channel[grepl("_RNA_OrigAGP", data$id, ignore.case = FALSE)] <-  "RNA, AGP"
+data$channel[grepl("_RNA_OrigLyso", data$id, ignore.case = FALSE)] <- "RNA, Lyso"
+data$channel[grepl("_RNA_OrigER", data$id, ignore.case = FALSE)] <- "RNA, ER"
+data$channel[grepl("_RNA_OrigMito", data$id, ignore.case = FALSE)] <-  "RNA, Mito"
+
+data$channel[grepl("_Mito", data$id, ignore.case = FALSE)] <-  "Mito"
+data$channel[grepl("_Mito_OrigDNA", data$id, ignore.case = FALSE)] <-  "Mito, DNA"
+data$channel[grepl("_Mito_OrigAGP", data$id, ignore.case = FALSE)] <-  "Mito, AGP"
+data$channel[grepl("_Mito_OrigLyso", data$id, ignore.case = FALSE)] <- "Mito, Lyso"
+data$channel[grepl("_Mito_OrigER", data$id, ignore.case = FALSE)] <-  "Mito, ER"
+data$channel[grepl("_Mito_OrigRNA", data$id, ignore.case = FALSE)] <-  "Mito, RNA"
+
+write.csv(data, files[i])
+
+}
+```
+
+
+```{r}
+
+test <- data[, 5:8704]
+test <- data.frame(apply(test, 2, as.numeric))
+test <- abs(test)
+lapply(test, class)
+test$median<- apply(test[,1:8700], 1, median, na.rm = TRUE)
+```
+

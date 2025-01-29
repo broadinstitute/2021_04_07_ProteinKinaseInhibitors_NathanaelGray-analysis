@@ -1,0 +1,134 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+```{r}
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+library(cytominer)
+library(stringr)
+library(readr)
+library(reshape2)
+library(ggplot2)
+library(tidyr)
+library(tibble)
+
+
+
+```
+
+
+```{r}
+setwd("/Users/habbasi/Documents/Github/broadinstitute/ProteinKinase_NathianelGray/Scripts")
+
+f.path <- "../collated/C-7210-01-CMP-008-gray_collapsed_sampled.csv"
+out.path <- "../Figures/Replicate_correlation/"
+  
+# REading files
+
+df <- data.frame(readr::read_csv(f.path), stringsAsFactors =F)
+
+# Metadata variables
+metadata <-
+  colnames(df) %>%
+  stringr::str_subset("^Metadata_")
+
+# Variables(Cell/Nuclei/Cytoplasm)
+
+variables <-
+  colnames(df) %>%
+  stringr::str_subset("^Nuclei_|^Cells_|^Cytoplasm_")
+
+# Function Calculating Median Pairwise Correlation
+
+median_pairwise_correlation <- function(df, variables, group_by) {
+  df %>%
+    dplyr::group_by_(.dots = group_by) %>%
+    do(tibble::data_frame(correlation = median(as.dist(cor(t(as.matrix(.[variables])))))))
+}
+set.seed(24)
+
+correlations <- df %>%
+  median_pairwise_correlation(variables, group_by = c("Metadata_Plate", "Metadata_compound_name"))
+
+c <- correlations %>% 
+  group_by(Metadata_compound_name) %>%
+  arrange(desc(correlation)) 
+
+
+# Calculation of Null threshold
+null_threshold <- 
+  1:10 %>% 
+  map_df(function(i) {
+    df %>%
+      tidyr::unite_("group_by", "Metadata_compound_name") %>%
+      mutate(group_by = sample(group_by)) %>%
+      median_pairwise_correlation(variables, "group_by")
+  }) %>%
+  magrittr::extract2("correlation") %>%
+  quantile(0.95, na.rm = TRUE)
+
+
+
+result <-
+  tibble::data_frame(
+    null_threshold = null_threshold,
+    fraction_strong = (sum(correlations$correlation > null_threshold) / nrow(correlations))
+    )
+
+
+
+
+
+# Plotting
+g <- ggplot(c, aes(x=c$Metadata_compound_name, y=c$correlation)) +
+        geom_line(aes(group = c$Metadata_compound_name )) +
+        geom_point(aes(color = c$Metadata_Plate)) +
+        geom_hline(yintercept= 	result$null_threshold, color="#006d2c", linetype="dotted", size=1) +
+        labs(x = "Protein Kinase Inhibitors", y= "Correlations") +
+        guides(color=guide_legend("Plates")) +
+        coord_flip() +
+        ggtitle("Median Replicate Correlation")
+
+
+p <- g + theme_classic() +
+  theme(strip.background =element_rect(fill="red"))+
+  theme() + theme(plot.title = element_text(hjust = 0.5))
+
+
+ggsave(filename='Gray_Replicate_correlation.png', plot = p, path = out.path)
+p
+```
+
+
+```{r}
+# median correlations
+
+correlations <- df %>%
+  median_pairwise_correlation(variables, group_by = c("Metadata_Plate", "Metadata_compound_name"))
+
+c_median <- correlations %>%
+  group_by(Metadata_compound_name) %>%
+  summarise_at("correlation", median) %>%
+  arrange(correlation) %>%
+  mutate(Metadata_compound_name = factor(Metadata_compound_name, levels = .$Metadata_compound_name))
+
+
+# Plotting
+p <- ggplot(c_median, aes(x=c_median$Metadata_compound_name, y=c_median$correlation)) +
+        geom_bar(stat = "identity") +
+        coord_flip() +
+        labs(x = "Protein Kinase Inhibitors", y= "Correlations") +
+        theme(plot.title = element_text(hjust = 0.5)) +
+        ggtitle("Median Replicate Correlation")
+ggsave(filename='Gray_Median_Replicate_correlation.pdf', plot = p, path = '/Users/habbasi/Desktop/')
+
+p
+   
+
+```
